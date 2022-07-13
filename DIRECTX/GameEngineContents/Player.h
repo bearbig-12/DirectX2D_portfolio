@@ -2,6 +2,7 @@
 #include <GameEngineCore/CoreMinimal.h>
 
 // Ό³Έν :
+class GameEngineDefaultRenderer;
 class Player : public GameEngineActor
 {
 public:
@@ -19,6 +20,10 @@ protected:
 	void Start() override;
 	void Update(float _DeltaTime);
 	void End()  {}
+
+	GameEngineDefaultRenderer* Renderer;
+
+	float4 Color;
 
 private:
 	float Speed;

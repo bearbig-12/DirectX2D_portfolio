@@ -52,8 +52,24 @@ private:
 
 };
 
+class float4x4;
 class float4
 {
+public:
+	// Dir
+	static const float4 LEFT;
+	static const float4 RIGHT;
+	static const float4 UP;
+	static const float4 DOWN;
+	static const float4 FORWARD;
+	static const float4 BACK;
+	static const float4 ZERO;
+	static const float4 ONE;
+
+	// Color
+	static const float4 BLUE;
+	static const float4 RED;
+
 public:
 	// 외적을 쓸수 있는곳
 	// 마우스 클릭시 회전방향 알아낼때.
@@ -230,17 +246,6 @@ public:
 	}
 
 
-
-public:
-	static const float4 LEFT;
-	static const float4 RIGHT;
-	static const float4 UP;
-	static const float4 DOWN;
-	static const float4 FORWARD;
-	static const float4 BACK;
-	static const float4 ZERO;
-	static const float4 ONE;
-
 public:
 	union 
 	{
@@ -251,6 +256,23 @@ public:
 			float z;
 			float w;
 		};
+
+		struct
+		{
+			float r;
+			float g;
+			float b;
+			float a;
+		};
+
+		struct
+		{
+			int IntValueX;
+			int IntValueY;
+			int IntValueZ;
+			int IntValueW;
+		};
+
 
 		float Arr1D[4];
 
@@ -268,6 +290,17 @@ public:
 	}
 
 public:
+	int uix() const
+	{
+		return static_cast<unsigned int>(x);
+	}
+
+	int uiy() const
+	{
+		return static_cast<unsigned int>(y);
+	}
+
+
 	int ix() const
 	{
 		return static_cast<int>(x);
@@ -477,6 +510,15 @@ public:
 		NewPoint.y = iy();
 		return NewPoint;
 	}
+
+	void TransformCoord(const float4x4& _Value);
+
+	float4 TransformCoordReturn(const float4x4& _Value);
+
+	void TransformNormal(const float4x4& _Value);
+
+	float4 TransformNormalReturn(const float4x4& _Value);
+
 
 public:
 	float4()
@@ -926,6 +968,8 @@ public:
 		DirectX::XMMATRIX Result = DirectX::XMMatrixInverse(nullptr, DirectMatrix);
 		return Result;
 	}
+
+	
 
 	void Transpose()
 	{

@@ -4,6 +4,12 @@
 #include <iostream>
 #include <GameEngineCore/GameEngineLevel.h>
 #include <GameEngineContents/GlobalContentsValue.h>
+#include "ScoreTestComponent.h"
+#include <GameEngineCore/GameEngineDefaultRenderer.h>
+#include <GameEngineCore/GameEngineRenderingPipeLine.h>
+#include <GameEngineCore/GameEngineVertexShader.h>
+#include <GameEngineCore/GameEngineConstantBuffer.h>
+#include <GameEngineCore/GameEngineDevice.h>
 
 Player::Player() 
 	: Speed(50.0f)
@@ -13,11 +19,6 @@ Player::Player()
 Player::~Player() 
 {
 }
-
-GameEngineRenderer* CurRenderer;
-GameEngineRenderer* ChildRenderer;
-GameEngineRenderer* ChildRenderer2;
-
 
 void Player::Start()
 {
@@ -33,53 +34,29 @@ void Player::Start()
 		GameEngineInput::GetInst()->CreateKey("Rot-", VK_NUMPAD2);
 	}
 
+
 	GetTransform().SetLocalScale({1, 1, 1});
 
+	ScoreTestComponent* ScoreCom = CreateComponent<ScoreTestComponent>();
 	{
-		CurRenderer = CreateComponent<GameEngineRenderer>();
-		CurRenderer->GetTransform().SetLocalScale({ 100, 100, 100 });
-	}
+		Renderer = CreateComponent<GameEngineDefaultRenderer>();
+		Renderer->GetTransform().SetLocalScale({ 100, 100, 100 });
+		Renderer->SetPipeLine("Color");
+		// 내 맴버변수가 아니라 다른객체의 맴버변수를 사용했다면
+		// 이건 터질수 있다.
 
-	{
-		ChildRenderer = CreateComponent<GameEngineRenderer>();
-		ChildRenderer->SetParent(CurRenderer);
-		ChildRenderer->GetTransform().SetWorldPosition({ 150.0f, 100.0f, 0.0f });
-	}
+		Color = { 0.5f, 0.5f, 0.1f, 1.0f };
 
-	{
-		ChildRenderer2 = CreateComponent<GameEngineRenderer>();
-		ChildRenderer2->SetParent(ChildRenderer);
-		ChildRenderer2->GetTransform().SetWorldPosition({ 250.0f, 100.0f, 0.0f });
+		Renderer->PipeLineHelper.SetConstantBufferNew("ResultColor", Color);
 	}
 }
 
-
-Monster* TestMonsterObject = nullptr;
-
-
 void Player::Update(float _DeltaTime)
 {
-	if (nullptr != ChildRenderer && true == ChildRenderer->IsDeath())
-	{
-		ChildRenderer = nullptr;
-	}
-
-	if (nullptr != ChildRenderer)
-	{
-		std::list<Monster*> MonsterList = GetLevel()->GetConvertToGroup<Monster>(OBJECTORDER::Monster);
-		for (Monster* MonsterObject : MonsterList)
-		{
-			if (GameEngineTransform::OBBToOBB(ChildRenderer->GetTransform(), MonsterObject->GetTransform()))
-			{
-				ChildRenderer->Death();
-				//TestMonsterObject = MonsterObject;
-				//MonsterObject->Death();
-			}
-		}
-	}
-
 	if (true == GameEngineInput::GetInst()->IsPress("PlayerLeft"))
 	{
+		Color.r += 1.0f * _DeltaTime;
+
 		GetTransform().SetWorldMove(GetTransform().GetLeftVector() * Speed * _DeltaTime);
 	}
 
@@ -105,14 +82,14 @@ void Player::Update(float _DeltaTime)
 		GetTransform().SetWorldMove(GetTransform().GetBackVector() * Speed * _DeltaTime);
 	}
 
-	if (true == GameEngineInput::GetInst()->IsPress("Rot+"))
-	{
-		CurRenderer->GetTransform().SetLocalRotate({ 0.0f, 0.0f, 360.0f * _DeltaTime });
-	}
-	if (true == GameEngineInput::GetInst()->IsPress("Rot-"))
-	{
-		CurRenderer->GetTransform().SetLocalRotate({ 0.0f, 0.0f, -360.0f * _DeltaTime });
-	}
+	//if (true == GameEngineInput::GetInst()->IsPress("Rot+"))
+	//{
+	//	CurRenderer->GetTransform().SetLocalRotate({ 0.0f, 0.0f, 360.0f * _DeltaTime });
+	//}
+	//if (true == GameEngineInput::GetInst()->IsPress("Rot-"))
+	//{
+	//	CurRenderer->GetTransform().SetLocalRotate({ 0.0f, 0.0f, -360.0f * _DeltaTime });
+	//}
 
 	// GlobalContentsValue::Actors::TestMonster
 
