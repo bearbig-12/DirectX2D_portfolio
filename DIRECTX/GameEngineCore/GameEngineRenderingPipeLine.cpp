@@ -22,6 +22,11 @@ GameEngineRenderingPipeLine::GameEngineRenderingPipeLine()
 	, Blend(nullptr)
 	, Topology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST)
 {
+	VertexBuffer = GameEngineVertexBuffer::Find("rect");
+	IndexBuffer = GameEngineIndexBuffer::Find("rect");
+	Rasterizer = GameEngineRasterizer::Find("EngineRasterizer");
+	Blend = GameEngineBlend::Find("AlphaBlend");
+	DepthStencil = GameEngineDepthStencil::Find("EngineBaseDepth");
 }
 
 GameEngineRenderingPipeLine::~GameEngineRenderingPipeLine() 
@@ -62,6 +67,12 @@ void GameEngineRenderingPipeLine::SetInputAssembler1VertexBuffer(const std::stri
 		return;
 	}
 
+	if (nullptr != InputLayOut)
+	{
+		delete InputLayOut;
+		InputLayOut = nullptr;
+	}
+
 	if (nullptr == InputLayOut && nullptr != VertexShader)
 	{
 		InputLayOut = new GameEngineInputLayOut();
@@ -77,6 +88,12 @@ void GameEngineRenderingPipeLine::SetVertexShader(const std::string& _Name)
 	{
 		MsgBoxAssert("존재하지 않는 버텍스 쉐이더를 세팅하려고 했습니다.");
 		return;
+	}
+
+	if (nullptr != InputLayOut)
+	{
+		delete InputLayOut;
+		InputLayOut = nullptr;
 	}
 
 	// 인풋레이아웃이 만들어지지 않았는데.
@@ -183,12 +200,14 @@ void GameEngineRenderingPipeLine::InputAssembler1VertexBufferSetting()
 void GameEngineRenderingPipeLine::VertexShaderSetting() 
 {
 	VertexShader->Setting();
-	GameEngineDevice::GetContext()->IASetPrimitiveTopology(Topology);
+	// 위치 
 	// D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 }
 
 void GameEngineRenderingPipeLine::InputAssembler2IndexBufferSetting() 
 {
+	GameEngineDevice::GetContext()->IASetPrimitiveTopology(Topology);
+
 	IndexBuffer->Setting();
 }
 
@@ -204,16 +223,17 @@ void GameEngineRenderingPipeLine::PixelShaderSetting()
 
 void GameEngineRenderingPipeLine::OutputMergerBlendSetting() 
 {
-
+	Blend->Setting();
 }
 
 void GameEngineRenderingPipeLine::OutputMergerDepthStencilSetting() 
 {
-
+	DepthStencil->Setting();
 }
 
 
 void GameEngineRenderingPipeLine::Draw()
 {
+
 	GameEngineDevice::GetContext()->DrawIndexed(IndexBuffer->GetIndexCount(), 0, 0);
 }

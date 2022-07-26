@@ -42,6 +42,13 @@ void GameEngineTransform::CalculateWorldViewProjection()
 {
 	Data.WorldViewMatrix = Data.WorldWorldMatrix * Data.ViewMatrix;
 	Data.WorldViewProjectionMatrix = Data.WorldViewMatrix * Data.ProjectionMatrix;
+
+	//float4 Pos = { 0.5f, 0.5f, 0.0f, 1.0f };
+
+	//Pos *= Data.WorldViewProjectionMatrix;
+
+	//Pos /= Pos.w;
+
 }
 
 void GameEngineTransform::DetachTransform()
@@ -71,4 +78,43 @@ void GameEngineTransform::SetParentTransform(GameEngineTransform& _Parent)
 	SetLocalScale(Data.LocalScaling);
 	SetLocalRotation(Data.LocalRotation);
 	SetLocalPosition(Data.LocalPosition);
+}
+
+
+void GameEngineTransform::PixLocalNegativeX()
+{
+	if (0.0f > Data.LocalScaling.x)
+	{
+		return;
+	}
+
+	Data.LocalScaling.x = -Data.LocalScaling.x;
+	
+	SetLocalScale(Data.LocalScaling);
+}
+
+void GameEngineTransform::PixLocalPositiveX()
+{
+	if (0.0f < Data.LocalScaling.x)
+	{
+		return;
+	}
+
+	// abs 어떤 숫자를 넣으면 무조건 양수(절대값)으로 변경해주는 함수.
+	Data.LocalScaling.x = abs(Data.LocalScaling.x);
+
+	SetLocalScale(Data.LocalScaling);
+}
+
+void GameEngineTransform::Copy(GameEngineTransform& _Trans)
+{
+	Data = _Trans.Data;
+	CollisionDataObject = _Trans.CollisionDataObject;
+	Parent = _Trans.Parent;
+	Childs = _Trans.Childs;
+
+	CalculateWorldRotation(Data.LocalRotation);
+	CalculateWorldScale(Data.LocalScaling);
+	CalculateWorldPosition(Data.LocalPosition);
+	CalculateWorld();
 }
